@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Calculator</h2>
+<p>Click the button to enter number and do calculations.</p>
+
+
+
+<!-- 控制器 --> 
+<table id="controller" border="1" cellpadding="1" cellspacing="1" style="border: 5px solid #990088; 
+border-collapse: collapse; width:300px;">
+  <tr height="80">
+　  <td colspan="4" align = "right"><font face="DFKai-sb"><span id = "outScreen" style="font-size:36px;"></span></font></td>
+　</tr>
+  <tr height="60">
+　  <td align = "center" width="75"> 
+      <center>
+        <button id = "clc" onclick = "clearConsole();showString()"> <span style="font-size:36px;"> C </span> </button>
+      </center>
+    </td>
+    <td align = "center" width="75"> 
+      <center>
+        <button id = "devide" onclick = "input('/');showString()"> <span style="font-size:36px;"> ÷ </span> </button>
+      </center>
+    </td>
+    <td align = "center" width="75">
+      <center>
+        <button id = "time" onclick = "input('*');showString()"> <span style="font-size:36px;"> × </span> </button>
+      </center>
+    </td>
+    <td align = "center" width="75">
+      <center>
+        <button id = "minus" onclick = "input('-');showString()"> <span style="font-size:36px;"> - </span> </button>
+      </center>
+    </td>
+　</tr>
+  <tr height="60">
+    <td align = "center">
+      <center>
+        <button id = "7" onclick = "input('7');showString()"> <span style="font-size:36px;"> 7 </span> </button>
+      </center>
+    </td>
+    <td align = "center">
+      <center>
+        <button id = "8" onclick = "input('8');showString()"> <span style="font-size:36px;"> 8 </span> </button>
+      </center>
+    </td>
+    <td>
+      <center>
+        <button id = "9" onclick = "input('9');showString()"> <span style="font-size:36px;"> 9 </span> </button>
+      </center>
+    </td>
+    <td rowspan = "2">
+      <center>
+        <button id = "c1" onclick = "input('+');showString()"> <span style="font-size:36px;"> + </span> </button>
+      </center>
+    </td>
+  </tr>
+　<tr height="60">
+　  <td>
+      <center>
+        <button id = "f1" onclick = "input('4');showString()"> <span style="font-size:36px;"> 4 </span> </button>
+      </center>
+    </td>
+　  <td>
+      <center>
+        <button id = "b1" onclick = "input('5');showString()"> <span style="font-size:36px;"> 5 </span> </button>
+      </center>
+    </td>
+    <td>
+      <center>
+        <button id = "c10" onclick = "input('6');showString()"> <span style="font-size:36px;"> 6 </span> </button>
+      </center>
+    </td>
+　</tr>
+　<tr height="60">
+    <td>
+      <center>
+        <button id = "f50" onclick = "input('1');showString()"> <span style="font-size:36px;"> 1 </span> </button>
+      </center>
+    </td>
+    <td>
+      <center>
+        <button id = "b50" onclick = "input('2');showString()"> <span style="font-size:36px;"> 2 </span> </button>
+      </center>
+    </td>
+    <td>
+      <center>
+        <button id = "bf" onclick = "input('3');showString()"> <span style="font-size:36px;"> 3 </span> </button>
+      </center>
+    </td>
+    <td rowspan = "2">
+      <center>
+        <button id = "bf" onclick = "calculation();showString()"> 
+          <span style="font-size:36px;"> = </span> 
+        </button>
+      </center>
+    </td>
+　</tr>
+  <tr height="60">
+    <td colspan="2">
+      <center>
+        <button id = "b10" onclick = "input('0');showString()"> <span style="font-size:36px;"> 0 </span> </button>
+      </center>
+    </td>
+    <td>
+      <center>
+        <button id = "bf" onclick = "input('.');showString()"> <span style="font-size:36px;"> . </span> </button>
+      </center>
+    </td>
+　</tr>
+</table>
+
+
+<script>
+var outPacket = { 
+  inputString:"",
+  outputNumberList:[],
+  outputOperatorList:[]
+}
+
+function input(inString){
+  outPacket.inputString += inString;
+}
+
+function showString(){
+  document.getElementById("outScreen").innerText = outPacket.inputString;
+}
+
+function clearConsole(){
+  outPacket.inputString = "";
+}
+
+function calculation(){
+  <!-- 取數字部分(正負有限小數) --> 
+  outPacket.outputNumberList = outPacket.inputString.match(/(?<![0-9])\-?[0-9]+(\.[0-9]+)?/g); 
+  <!-- 取符號部分(+ - * /) -->
+  outPacket.outputOperatorList = outPacket.inputString.match(/(?<=[0-9])[+|\-|*|\/](?=[0-9|\-])/g);
+
+  <!-- 運算 -->
+  let numberStack = [];
+  let operatorStack = [];
+  let tempElement;
+
+  while((tempElement=outPacket.outputOperatorList.shift())!=undefined){
+
+    if(tempElement == "*"){
+      outPacket.outputNumberList.unshift((Number(outPacket.outputNumberList.shift()) * 
+       Number(outPacket.outputNumberList.shift())).toFixed(8).replace(/0+$/, "").replace(/\.$/, ""));
+    } else if(tempElement == "/"){
+      outPacket.outputNumberList.unshift((Number(outPacket.outputNumberList.shift()) / 
+       Number(outPacket.outputNumberList.shift())).toFixed(8).replace(/0+$/, "").replace(/\.$/, ""));
+    } else {
+      numberStack.push(outPacket.outputNumberList.shift());
+      operatorStack.push(tempElement);
+    }
+  }
+
+  numberStack.push(outPacket.outputNumberList.shift());
+
+  while((tempElement=operatorStack.shift())!=undefined){
+    if(tempElement == "+"){
+      numberStack.unshift((Number(numberStack.shift()) + 
+       Number(numberStack.shift())).toFixed(8).replace(/0+$/, "").replace(/\.$/, ""));
+    } else if(tempElement == "-"){
+      numberStack.unshift((Number(numberStack.shift()) - 
+       Number(numberStack.shift())).toFixed(8).replace(/0+$/, "").replace(/\.$/, ""));
+    } else {
+      throw "Wrong operation code!";
+    }
+  }
+
+  outPacket.inputString = numberStack.shift();
+}
+
+</script>
+
+</body>
+</html> 
